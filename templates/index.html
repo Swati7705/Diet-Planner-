@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Diet and Workout Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+    * {
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+    }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        background: linear-gradient(to right, #f8fafc, #eef1f6);
+        color: #2d2d2d;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 700px;
+        margin: auto;
+        padding: 35px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+        color: #334155;
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 700;
+    }
+
+    label {
+        display: block;
+        margin: 18px 0 8px;
+        font-weight: 600;
+        color: #475569;
+        font-size: 15px;
+    }
+
+    input[type="text"],
+    textarea {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1.5px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 15px;
+        background-color: #f9fafb;
+        outline: none;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        background-color: #fff;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #4d4fd7, #8361d4);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+        box-shadow: 0 4px 10px rgba(82, 82, 112, 0.2);
+    }
+
+    button:hover {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(99, 102, 241, 0.3);
+    }
+
+    .result-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 30px;
+    }
+
+    .result-buttons button {
+        background-color: #e0e7ff;
+        color: #e7e7ee;
+        font-weight: 500;
+    }
+
+    .result-buttons button:hover {
+        background-color: #c7d2fe;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.3s ease;
+        padding-top: 60px;
+    }
+
+    .modal-content {
+        background-color: #ffffff;
+        margin: 5% auto;
+        padding: 30px;
+        border-radius: 14px;
+        width: 85%;
+        max-width: 600px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #333;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    ul li {
+        background-color: #f1f5f9;
+        padding: 10px 15px;
+        margin-bottom: 6px;
+        border-radius: 8px;
+        font-size: 15px;
+        color: #334155;
+        border-left: 4px solid #7c3aed;
+    }
+
+    ul li:nth-child(even) {
+        background-color: #e2e8f0;
+    }
+
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 25px;
+        }
+
+        h2 {
+            font-size: 24px;
+        }
+    }
+</style>
+
+
+
+
+
+</head>
+<body>
+    <div class="container">
+        <h2>Personalized Diet & Workout Planner</h2>
+        <form action="/recommendations" method="POST">
+            <label>Dietary Preferences:</label>
+            <input type="text" name="dietary_preferences" placeholder="e.g., vegetarian, high-protein" required>
+
+            <label>Fitness Goals:</label>
+            <input type="text" name="fitness_goals" placeholder="e.g., weight loss, muscle gain" required>
+
+            <label>Lifestyle Factors:</label>
+            <input type="text" name="lifestyle_factors" placeholder="e.g., active, sedentary" required>
+
+            <label>Dietary Restrictions:</label>
+            <input type="text" name="dietary_restrictions" placeholder="e.g., gluten-free, lactose-intolerant" required>
+
+            <label>Health Conditions:</label>
+            <input type="text" name="health_conditions" placeholder="e.g., diabetes, high blood pressure" required>
+
+            <label>Your Query:</label>
+            <textarea name="user_query" placeholder="Describe your goal briefly" required></textarea>
+
+            <button type="submit">Get Recommendations</button>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="container">
+    
+        <h2>Recommendations</h2>
+
+        <!-- Action Buttons -->
+        <div class="result-buttons">
+            <button onclick="showModal('dietModal')">View Diet Types</button>
+            <button onclick="showModal('workoutModal')">View Workout Options</button>
+            <button onclick="showModal('breakfastModal')">View Breakfast Ideas</button>
+            <button onclick="showModal('dinnerModal')">View Dinner Options</button>
+            <button onclick="showModal('tipsModal')">View Additional Tips</button>
+        </div>
+
+    </div>
+<!-- Modals -->
+<div id="dietModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('dietModal')">&times;</span>
+        <h3>Diet Types</h3>
+        <ul>
+            {% for diet in recommendations.diet_types %}
+                <li>{{ diet }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div id="workoutModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('workoutModal')">&times;</span>
+        <h3>Workout Options</h3>
+        <ul>
+            {% for workout in recommendations.workouts %}
+                <li>{{ workout }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div id="breakfastModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('breakfastModal')">&times;</span>
+        <h3>Breakfast Ideas</h3>
+        <ul>
+            {% for breakfast in recommendations.breakfasts %}
+                <li>{{ breakfast }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div id="dinnerModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('dinnerModal')">&times;</span>
+        <h3>Dinner Options</h3>
+        <ul>
+            {% for dinner in recommendations.dinners %}
+                <li>{{ dinner }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div id="tipsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('tipsModal')">&times;</span>
+        <h3>Additional Tips</h3>
+        <ul>
+            {% for tip in recommendations.additional_tips %}
+                <li>{{ tip }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = "block";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    // Close modals when clicking outside of them
+    window.onclick = function(event) {
+        const modals = document.getElementsByClassName("modal");
+        for (let i = 0; i < modals.length; i++) {
+            if (event.target == modals[i]) {
+                modals[i].style.display = "none";
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
